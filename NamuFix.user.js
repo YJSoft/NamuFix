@@ -93,14 +93,14 @@ if (IsEditing()) {
       txtarea.selectionStart = s;
       txtarea.selectionEnd = s + str.length;
     }
-    this.ToggleWrapSelected = function(l, r_) {
-      if (typeof r_ === "undefined") {
-        var r = l;
+    this.ToggleWrapSelected = function(l) {
+      if (arguments.length > 1) {
+        var r = arguments[1];
       } else {
-        var r = r_;
+        var r = l;
       }
       var p = WikiText.getSelected();
-      if (p.indexOf(l) != 0 || p.indexOf(r) != (p.length - r.length)) {
+      if (p.indexOf(l) != 0 || p.indexOf(p.length - r.length) != r) {
         p = l + p + r;
       } else {
         p = p.substring(l.length, p.length - r.length)
