@@ -99,13 +99,13 @@ if (IsEditing()) {
       } else {
         var r = r_;
       }
-      var p = this.getSelected();
+      var p = WikiText.getSelected();
       if (p.indexOf(l) != 0 || p.indexOf(r) != (p.length - r.length)) {
         p = l + p + r;
       } else {
         p = p.substring(l.length, p.length - r.length)
       }
-      this.replaceSelected(p);
+      WikiText.replaceSelected(p);
     }
 
   }();
