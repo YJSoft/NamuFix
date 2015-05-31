@@ -1,4 +1,5 @@
 var WrapClosure = function(l) {
+  alert(l);
   if (arguments.length == 1) {
     return function() {
       WikiText.ToogleWrapSelected(l);
