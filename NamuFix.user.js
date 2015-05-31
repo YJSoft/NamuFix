@@ -112,7 +112,7 @@ if (IsEditing()) {
 
   // Included : src/Editor/EditorFeatures.js
   // Included : src/Editor/Features/MarkUpWrapping.js
-  function WrapClosure(l) {
+  var WrapClosure = function(l) {
     if (arguments.length == 1) {
       return function() {
         WikiText.ToogleWrapSelected(l);
@@ -131,7 +131,7 @@ if (IsEditing()) {
     return o;
   }
 
-  function fontSizeMarkUp(a) {
+  var fontSizeMarkUp = function(a) {
     return function() {
       var pattern = /{{{\+([0-9]+) (.+?)}}}/;
       var sel = WikiText.getSelected();
@@ -145,7 +145,7 @@ if (IsEditing()) {
       } else {
         WikiText.replaceSelected('{{{+1 ' + ifEmpty(sel, '내용') + '}}}')
       }
-    }
+    };
   }
   editorModifier.addButton('<strong>가</strong>', '굵게', WrapClosure("'''"));
   editorModifier.addButton('<i>가</i>', '기울게', WrapClosure("''"));
