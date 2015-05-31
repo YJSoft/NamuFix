@@ -112,14 +112,14 @@ if (IsEditing()) {
 
   // Included : src/Editor/EditorFeatures.js
   // Included : src/Editor/Features/MarkUpWrapping.js
-  function WrapClosure(l, r_) {
-    if (typeof r_ === "undefined") {
+  function WrapClosure(l) {
+    if (arguments.length == 1) {
       return function() {
         WikiText.ToogleWrapSelected(l);
       };
     } else {
       return function() {
-        WikiText.ToogleWrapSelected(l, r_);
+        WikiText.ToogleWrapSelected(l, arguments[1]);
       };
     }
   }
