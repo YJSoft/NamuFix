@@ -59,6 +59,10 @@ height:20px;
 	border-radius: 10px;
 	background: white;
 }
+#Dialog > span#CloseButton{
+	text-align: left;
+	font-size: 11pt;
+}
 
 #Dialog > span#DialogTitle {
 	color: black;
