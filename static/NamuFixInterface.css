@@ -59,9 +59,12 @@ height:20px;
 	border-radius: 10px;
 	background: white;
 }
-#Dialog > span#CloseButton{
-	text-align: left;
-	font-size: 11pt;
+#Dialog > span#CloseDialog{
+	float: right;
+	font-size: 13pt;
+	line-height: normal;
+	margin-top: 5.5pt;
+	margin-bottom: 5.5pt;
 }
 
 #Dialog > span#DialogTitle {

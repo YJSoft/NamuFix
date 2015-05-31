@@ -21,6 +21,8 @@ var Dialog = (function() {
         dinfo[i] = diaginfo[i];
       }
       dialog.innerHTML = '';
+      if(!document.body.contains(dialogParent))
+        document.body.appendChild(dialogParent);
       if (dinfo.withTitle) {
         var titleElement = document.createElement("span");
         titleElement.id = "DialogTitle";
