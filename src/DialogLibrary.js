@@ -85,6 +85,7 @@ var Dialog = (function() {
           buttonArea.innerHTML = '';
         }
       }
+      func(bridge);
     }
   };
 })();
