@@ -115,11 +115,11 @@ if (IsEditing()) {
   var WrapClosure = function(l) {
     if (arguments.length == 1) {
       return function() {
-        WikiText.ToogleWrapSelected(l);
+        WikiText.ToggleWrapSelected(l);
       };
     } else {
       return function() {
-        WikiText.ToogleWrapSelected(l, arguments[1]);
+        WikiText.ToggleWrapSelected(l, arguments[1]);
       };
     }
   }
