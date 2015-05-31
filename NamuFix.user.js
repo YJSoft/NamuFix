@@ -115,7 +115,6 @@ if (IsEditing()) {
   var WrapClosure = function(l) {
     if (arguments.length == 1) {
       return function() {
-        alert(l); // TEST CODE
         WikiText.ToggleWrapSelected(l);
       };
     } else {
