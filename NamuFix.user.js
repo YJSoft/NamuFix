@@ -94,7 +94,7 @@ if (IsEditing()) {
       txtarea.selectionEnd = s + str.length;
     }
     this.ToggleWrapSelected = function(l, r_) {
-      if (typeof r === "undefined") {
+      if (typeof r_ === "undefined") {
         var r = l;
       } else {
         var r = r_;
