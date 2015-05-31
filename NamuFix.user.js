@@ -113,7 +113,6 @@ if (IsEditing()) {
   // Included : src/Editor/EditorFeatures.js
   // Included : src/Editor/Features/MarkUpWrapping.js
   var WrapClosure = function(l) {
-    alert(l);
     if (arguments.length == 1) {
       return function() {
         WikiText.ToogleWrapSelected(l);
