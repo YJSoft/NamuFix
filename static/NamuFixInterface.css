@@ -59,7 +59,8 @@ height:20px;
 	border-radius: 10px;
 	background: white;
 }
-#Dialog > span#CloseDialog{
+#Dialog span#CloseDialog{
+	color: red;
 	float: right;
 	font-size: 13pt;
 	line-height: normal;

@@ -30,8 +30,14 @@ var Dialog = (function() {
         dialog.appendChild(titleElement);
       }
       if (dinfo.withCloseButton) {
-        dialog.innerHTML += '<span class="icon ion-close-round" id="CloseDialog"></span>';
-        dialog.getElementById('CloseDialog').addEventListener('click', closer);
+        var CloseButtonIcon=document.createElement("span");
+        CloseButtonIcon.className="icon ion-close-round";
+        CloseButtonIcon.id="CloseDialog";
+        var CloseButton=document.createElement("a");
+        CloseButton.appendChild(CloseButtonIcon);
+        CloseButton.setAttribute("href","#");
+        CloseButton.addEventListener("click",closer);
+        dialog.appendChild(CloseButton);
       }
       if (dinfo.withTitle || dinfo.withCloseButton) {
         dialog.innerHTML += '<br><hr>';
@@ -48,6 +54,8 @@ var Dialog = (function() {
         close: closer,
         content: container,
         parent: dialogParent,
+        setHeight: function(h){container.style.height=h;},
+        setWidth: function(w){container.style.width=w;}
       };
       if (dinfo.withTitle) {
         bridge.setTitle = function(newtitle) {
@@ -62,10 +70,10 @@ var Dialog = (function() {
       }
       if (dinfo.withCloseButton) {
         bridge.hideCloseButton = function() {
-          dialog.getElementById("CloseButton").style.display = "none";
+          CloseButton.style.display = "none";
         };
         bridge.hideCloseButton = function() {
-          dialog.getElementById("CloseButton").style.display = "";
+          CloseButton.style.display = "";
         };
       }
       if (dinfo.withBottomButtonArea) {
