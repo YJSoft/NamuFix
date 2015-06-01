@@ -26,7 +26,6 @@ GM_xmlhttpRequest({
 });
 
 /** Include("src/CheckLocation.js") **/
-/** Include("src/DialogLibrary.js") **/
 if(IsEditing()){
 
   /** Include("src/Editor/EditorModifier.js") **/
