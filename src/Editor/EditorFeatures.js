@@ -1,7 +1,11 @@
 /** Include("src/Editor/Features/BasicMarkUp.js") **/
-Dialog.openDialog({Title:"테스트"},function(bridge){
-  bridge.content.innerHTML="HEY!";
-  bridge.setTitle("테스트테스트");
-  bridge.addButton("테스트1",function(){alert("1");});
-  bridge.addBlueButton("테스트2",function(){alert("2");});
-});
+editorModifier.addButton('테','Dialog TEST',function(){showDialog({
+  title:"테스트",
+  content:'<span style="color:red;">테스트입니다</span>',
+  contentFunc:function(c){c.innerHTML+="진짜로";},
+  buttons:[
+    {value:"닫기",color:"red",onclick:function(){showDialog.close();}},
+    {value:"테스트1",color:"blue",onclick:function(){alert('111');}},
+    {value:"테스트2",onclick:function(){alert('222');}}
+  ]
+});});

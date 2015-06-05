@@ -1,9 +1,10 @@
-@import url(http://fonts.googleapis.com/earlyaccess/nanumgothic.css);
+@import url(//fonts.googleapis.com/earlyaccess/nanumgothic.css);
 
-em{
+em{ /* Italic Bug Fix */
 	font-style: italic
 }
 
+/* Editor Interface CSS Begins */
 .BetterNamuButton .icon{
 	font-size: 125%
 }
@@ -46,4 +47,90 @@ div#EditInterfaceStatus {
 color:white;
 background:#7D7F86;
 height:20px;
+}
+/* Editor Interface CSS Ends
+https://jsfiddle.net/po95t5sr/3/
+*/
+.DialogParent {
+    background: rgba(0, 0, 0, 0.5);
+    height: 100%;
+    width: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+}
+.Dialog {
+    background: white;
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    border: 2px black solid;
+    border-radius: 1px;
+}
+.Dialog > .TitleArea {
+    padding: 8px;
+    margin-bottom: 2px;
+}
+.Dialog > .TitleArea > span#Title {
+    font-size: 18pt;
+    height: 18pt;
+    font-weight: bold;
+    color: black;
+}
+.Dialog > .TitleArea #Close{
+    float:right;
+    font-size: 12pt;
+    color:gray;
+    height: 18pt;
+    margin: 3pt;
+}
+.Dialog > .TitleArea #Close:hover{
+    color:black;
+}
+.Dialog > .Container{
+    margin-top: 1px;
+    margin-left: 8px;
+    margin-right: 8px;
+    margin-bottom: 10px;
+}
+.Dialog > .Buttons {
+    padding: 5px;
+    display: table-cell;
+    vertical-align: bottom;
+    float:right;
+    background: gray;
+    width: 100%;
+
+}
+.Dialog button, .Dialog input[type=button]{
+    border-radius: 10px;
+    padding: 5px 10px 5px 10px;
+    border: 1px white;
+    background: white;
+    color: black;
+}
+.Dialog button:hover, .Dialog input[type=button]:hover{
+    background: Gainsboro;
+}
+.RedButton{
+    background:Red !important;
+    color:white !important;
+}
+.RedButton:hover{
+    background:Darkred !important;
+    color:white !important;
+}
+.BlueButton{
+    background:Aqua !important;
+    color:white !important;
+}
+.BlueButton:hover{
+    background:DeepSkyBlue !important;
+    color:white !important;
+}
+.Dialog > .Buttons > button, .Dialog > .Buttons > input[type=button]{
+    float:right;
+    margin-left: 2px;
+    margin-right: 2px;
 }

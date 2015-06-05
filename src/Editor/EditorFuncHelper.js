@@ -28,6 +28,9 @@ var WikiText= new function(){
       var r = l;
     }
     var p=WikiText.getSelected();
+    if(p==null || p==''){
+      p="내용";
+    }
     if(p.indexOf(l)!=0||p.substring(p.length-r.length)!=r){
       p=l+p+r;
     }else{

@@ -25,6 +25,105 @@ GM_xmlhttpRequest({
   }
 });
 
+// Included : src/DialogLib.js
+function showDialog(params) {
+  // 내부 함수
+  var RemoveElement = function(elem) {
+    elem.parentNode.removeChild(elem);
+  };
+
+  // 매개변수 기본값 처리
+  var data = {
+    withTitle: true,
+    title: "NamuFix",
+    withCloseButton: true,
+    content: "잠시만 기다려주세요....",
+    contentFunc: function(con) {},
+    withButtonsOnBottoms: true,
+    buttons: [{
+        value: "닫기",
+        onclick: function() {}
+      }]
+      //buttons:[{color:"Blue",value:"확인",onclick:function(){}},{color:"Red",value:"취소",onclick:function(){}}]
+  };
+  for (var i in params) {
+    data[i] = params[i];
+  }
+
+  // 기존 다이얼로그 존재시 제거
+  if (document.querySelector(".DialogParent") != null)
+    RemoveElement(document.querySelector(".DialogParent"));
+
+  // 필수 요소 변수 선언
+  var Parent = document.createElement("div");
+  var Dialog = document.createElement("div");
+
+  // 부모-자식 관계 설정
+  Dialog.className = "Dialog";
+  Parent.className = "DialogParent";
+  Parent.appendChild(Dialog);
+
+  // 제목과 닫기 버튼
+  if (data.withTitle || data.withCloseButton) {
+    var TitleArea = document.createElement("div");
+    TitleArea.className = "TitleArea";
+    if (data.withTitle) {
+      var TitleSpan = document.createElement("span");
+      TitleSpan.id = "Title";
+      TitleSpan.innerHTML = data.title;
+      TitleArea.appendChild(TitleSpan);
+    }
+    if (data.withCloseButton) {
+      var CloseButton = document.createElement("a");
+      CloseButton.setAttribute("href", "#");
+      CloseButton.id = "Close";
+      CloseButton.innerHTML = '<span class="icon ion-close"></span>';
+      TitleArea.appendChild(CloseButton);
+    }
+    Dialog.appendChild(TitleArea);
+  }
+
+  var Container = document.createElement("div");
+  Container.className = "Container";
+  Container.innerHTML = data.content;
+  data.contentFunc(Container);
+  Dialog.appendChild(Container);
+
+  if (data.withCloseButton) {
+    var Buttons = document.createElement("div");
+    Buttons.className = "Buttons";
+    for (var i = 0; i < data.buttons.length; i++) {
+      var btnDat = data.buttons[i];
+      var Button = document.createElement("button");
+      Button.setAttribute("type", "button");
+      // 색 지정
+      if ((typeof btnDat.color !== "undefined") && (btnDat.color != null)) {
+        switch (btnDat.color.toLowerCase()) {
+          case "blue":
+            Button.className = "BlueButton"
+            break;
+          case "red":
+            Button.className = "RedButton";
+            break;
+        }
+      }
+      Button.innerHTML = btnDat.value;
+      Button.addEventListener("click", btnDat.onclick);
+      Buttons.appendChild(Button);
+    }
+    Dialog.appendChild(Buttons);
+  }
+  document.body.appendChild(Parent);
+}
+showDialog.close = function() {
+  var RemoveElement = function(elem) {
+    elem.parentNode.removeChild(elem);
+  };
+  if (document.querySelector(".DialogParent") != null) {
+    RemoveElement(document.querySelector(".DialogParent"));
+  }
+};
+
 // Included : src/CheckLocation.js
 function IsEditing() {
   return document.querySelector("textarea[name=content]") !== null && (/https?:\/\/[^\.]*\.?namu\.wiki\/edit.*/).test(location.href);
@@ -100,6 +199,9 @@ if (IsEditing()) {
         var r = l;
       }
       var p = WikiText.getSelected();
+      if (p == null || p == '') {
+        p = "내용";
+      }
       if (p.indexOf(l) != 0 || p.substring(p.length - r.length) != r) {
         p = l + p + r;
       } else {
@@ -156,16 +258,31 @@ if (IsEditing()) {
   editorModifier.addButton('<span style="font-size:75%;">가</span>', '글씨 작게', fontSizeMarkUp(-1));
   editorModifier.addButton('<span style="font-size:125%;">가</span>', '글씨 크게', fontSizeMarkUp(1));
 
-  Dialog.openDialog({
-    Title: "테스트"
-  }, function(bridge) {
-    bridge.content.innerHTML = "HEY!";
-    bridge.setTitle("테스트테스트");
-    bridge.addButton("테스트1", function() {
-      alert("1");
-    });
-    bridge.addBlueButton("테스트2", function() {
-      alert("2");
+  editorModifier.addButton('테', 'Dialog TEST', function() {
+    showDialog({
+      title: "테스트",
+      content: '<span style="color:red;">테스트입니다</span>',
+      contentFunc: function(c) {
+        c.innerHTML += "진짜로";
+      },
+      buttons: [{
+        value: "닫기",
+        color: "red",
+        onclick: function() {
+          showDialog.close();
+        }
+      }, {
+        value: "테스트1",
+        color: "blue",
+        onclick: function() {
+          alert('111');
+        }
+      }, {
+        value: "테스트2",
+        onclick: function() {
+          alert('222');
+        }
+      }]
     });
   });
 }
