@@ -2,6 +2,14 @@ function showDialog(params){
   // 내부 함수
   var RemoveElement=function(elem){elem.parentNode.removeChild(elem);};
 
+  // 정적 함수
+  showDialog.close=function(){
+    var RemoveElement=function(elem){elem.parentNode.removeChild(elem);};
+    if(document.querySelector(".DialogParent")!=null){
+      RemoveElement(document.querySelector(".DialogParent"));
+    }
+  };
+
   // 매개변수 기본값 처리
   var data={
     withTitle:true,
@@ -43,6 +51,7 @@ function showDialog(params){
     if(data.withCloseButton){
       var CloseButton=document.createElement("a");
       CloseButton.setAttribute("href","#");
+      CloseButton.addEventListener("click",showDialog.close);
       CloseButton.id="Close";
       CloseButton.innerHTML='<span class="icon ion-close"></span>';
       TitleArea.appendChild(CloseButton);
@@ -56,7 +65,7 @@ function showDialog(params){
   data.contentFunc(Container);
   Dialog.appendChild(Container);
 
-  if(data.withCloseButton){
+  if(data.withButtonsOnBottoms){
     var Buttons=document.createElement("div");
     Buttons.className="Buttons";
     for(var i=0;i<data.buttons.length;i++){
@@ -82,9 +91,3 @@ function showDialog(params){
   }
   document.body.appendChild(Parent);
 }
-showDialog.close=function(){
-  var RemoveElement=function(elem){elem.parentNode.removeChild(elem);};
-  if(document.querySelector(".DialogParent")!=null){
-    RemoveElement(document.querySelector(".DialogParent"));
-  }
-};
