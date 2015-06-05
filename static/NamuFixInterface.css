@@ -99,7 +99,6 @@ https://jsfiddle.net/po95t5sr/3/
     display: table-cell;
     vertical-align: bottom;
     float:right;
-    background: gray;
     width: 100%;
 
 }
@@ -107,7 +106,7 @@ https://jsfiddle.net/po95t5sr/3/
     border-radius: 10px;
     padding: 5px 10px 5px 10px;
     border: 1px white;
-    background: white;
+    background: #E8E8E8;
     color: black;
 }
 .Dialog button:hover, .Dialog input[type=button]:hover{
