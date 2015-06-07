@@ -21,7 +21,7 @@ margin:0 0 0 0;
 padding:8px 4px 8px 4px;
 }
 
-button.BetterNamuButton:hover {
+button.BetterNamuButton:hover, button.BetterNamuButton.active {
 background:#7D7F86;
 }
 
