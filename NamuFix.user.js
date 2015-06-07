@@ -32,13 +32,23 @@ function showDialog(params) {
     elem.parentNode.removeChild(elem);
   };
 
+  // 정적 함수
+  showDialog.close = function() {
+    var RemoveElement = function(elem) {
+      elem.parentNode.removeChild(elem);
+    };
+    if (document.querySelector(".DialogParent") != null) {
+      RemoveElement(document.querySelector(".DialogParent"));
+    }
+  };
+
   // 매개변수 기본값 처리
   var data = {
     withTitle: true,
     title: "NamuFix",
     withCloseButton: true,
     content: "잠시만 기다려주세요....",
-    contentFunc: function(con) {},
+    beforeShow: function() {},
     withButtonsOnBottoms: true,
     buttons: [{
         value: "닫기",
@@ -76,6 +86,7 @@ function showDialog(params) {
     if (data.withCloseButton) {
       var CloseButton = document.createElement("a");
       CloseButton.setAttribute("href", "#");
+      CloseButton.addEventListener("click", showDialog.close);
       CloseButton.id = "Close";
       CloseButton.innerHTML = '<span class="icon ion-close"></span>';
       TitleArea.appendChild(CloseButton);
@@ -86,10 +97,10 @@ function showDialog(params) {
   var Container = document.createElement("div");
   Container.className = "Container";
   Container.innerHTML = data.content;
-  data.contentFunc(Container);
+  data.beforeShow(Container);
   Dialog.appendChild(Container);
 
-  if (data.withCloseButton) {
+  if (data.withButtonsOnBottoms) {
     var Buttons = document.createElement("div");
     Buttons.className = "Buttons";
     for (var i = 0; i < data.buttons.length; i++) {
@@ -115,14 +126,6 @@ function showDialog(params) {
   }
   document.body.appendChild(Parent);
 }
-showDialog.close = function() {
-  var RemoveElement = function(elem) {
-    elem.parentNode.removeChild(elem);
-  };
-  if (document.querySelector(".DialogParent") != null) {
-    RemoveElement(document.querySelector(".DialogParent"));
-  }
-};
 
 // Included : src/CheckLocation.js
 function IsEditing() {
@@ -249,6 +252,57 @@ if (IsEditing()) {
       }
     };
   }
+  var fontColorMarkUp = function() {
+    var setColor = function(hex) {
+      var a = WikiText.getSelected();
+      var ColouredPattern = /{{{#[a-zA-Z0-9]+ (.+?)}}}/;
+      var selected = WikiText.getSelected();
+      if (selected == null || selected == '')
+        selected = '내용';
+      if (ColouredPattern.test(selected)) {
+        selected = '{{{' + hex + ' ' + ColouredPattern.exec(selected)[1] + '}}}';
+      } else {
+        selected = '{{{' + hex + ' ' + selected + '}}}';
+      }
+      WikiText.replaceSelected(selected);
+    };
+    var nowSelected = null;
+    showDialog({
+      title: "글씨색 변경",
+      content: '<p>색을 고르고 확인 버튼을 누르세요.</p><p>선택하신 색은 <span id="ctys">(아직 선택하지 않음)</span><span id="ctysHex"></span>입니다.</p>',
+      beforeShow: function(container) {
+        // <span id="ctys">이색</span>입니다.</p><div id="colorPicker" class="cp-default"></div>
+        var colpick = document.createElement("div");
+        colpick.className = "cp-default";
+        ColorPicker(colpick, function(hex, hsv, rgb) {
+          nowSelected = hex;
+          if (document.querySelector("#ctys")) {
+            document.querySelector("#ctys").style.background = hex;
+            document.querySelector("#ctys").style.color = hex;
+          }
+          if (document.querySelector("#ctysHex")) {
+            document.querySelector("#ctysHex").textContent = '(' + hex + ')';
+          }
+
+        });
+        container.appendChild(colpick);
+      },
+      buttons: [{
+        value: "취소",
+        onclick: function() {
+          showDialog.close();
+        }
+      }, {
+        value: "확인",
+        color: "blue",
+        onclick: function() {
+          if (nowSelected != null) setColor(nowSelected);
+          showDialog.close();
+        }
+      }]
+    });
+  };
+
   editorModifier.addButton('<strong>가</strong>', '굵게', WrapClosure("'''"));
   editorModifier.addButton('<i>가</i>', '기울게', WrapClosure("''"));
   editorModifier.addButton('<del>가</del>', '취소선', WrapClosure("--"));
@@ -257,32 +311,5 @@ if (IsEditing()) {
   editorModifier.addButton('가<sup>가</sup>', '윗첨자', WrapClosure("^^"));
   editorModifier.addButton('<span style="font-size:75%;">가</span>', '글씨 작게', fontSizeMarkUp(-1));
   editorModifier.addButton('<span style="font-size:125%;">가</span>', '글씨 크게', fontSizeMarkUp(1));
-
-  editorModifier.addButton('테', 'Dialog TEST', function() {
-    showDialog({
-      title: "테스트",
-      content: '<span style="color:red;">테스트입니다</span>',
-      contentFunc: function(c) {
-        c.innerHTML += "진짜로";
-      },
-      buttons: [{
-        value: "닫기",
-        color: "red",
-        onclick: function() {
-          showDialog.close();
-        }
-      }, {
-        value: "테스트1",
-        color: "blue",
-        onclick: function() {
-          alert('111');
-        }
-      }, {
-        value: "테스트2",
-        onclick: function() {
-          alert('222');
-        }
-      }]
-    });
-  });
+  editorModifier.addButton('<span style="color:red;">가</span>', '글씨색', fontColorMarkUp);
 }

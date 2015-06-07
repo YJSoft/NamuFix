@@ -16,7 +16,7 @@ function showDialog(params){
     title:"NamuFix",
     withCloseButton:true,
     content:"잠시만 기다려주세요....",
-    contentFunc:function(con){},
+    beforeShow:function(){},
     withButtonsOnBottoms:true,
     buttons:[{value:"닫기",onclick:function(){}}]
     //buttons:[{color:"Blue",value:"확인",onclick:function(){}},{color:"Red",value:"취소",onclick:function(){}}]
@@ -62,7 +62,7 @@ function showDialog(params){
   var Container=document.createElement("div");
   Container.className="Container";
   Container.innerHTML=data.content;
-  data.contentFunc(Container);
+  data.beforeShow(Container);
   Dialog.appendChild(Container);
 
   if(data.withButtonsOnBottoms){

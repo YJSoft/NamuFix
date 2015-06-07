@@ -33,6 +33,51 @@ var fontSizeMarkUp = function(a) {
     }
   };
 }
+var fontColorMarkUp = function(){
+  var setColor=function(hex){
+    var a=WikiText.getSelected();
+    var ColouredPattern=/{{{#[a-zA-Z0-9]+ (.+?)}}}/;
+    var selected=WikiText.getSelected();
+    if(selected==null || selected == '')
+      selected='내용';
+    if(ColouredPattern.test(selected)){
+      selected='{{{'+hex+' '+ColouredPattern.exec(selected)[1]+'}}}';
+    }else{
+      selected='{{{'+hex+' '+selected+'}}}';
+    }
+    WikiText.replaceSelected(selected);
+  };
+  var nowSelected=null;
+  showDialog({
+    title:"글씨색 변경",
+    content:'<p>색을 고르고 확인 버튼을 누르세요.</p><p>선택하신 색은 <span id="ctys">(아직 선택하지 않음)</span><span id="ctysHex"></span>입니다.</p>',
+    beforeShow:function(container){
+      // <span id="ctys">이색</span>입니다.</p><div id="colorPicker" class="cp-default"></div>
+      var colpick=document.createElement("div");
+      colpick.className="cp-default";
+      ColorPicker(colpick,function(hex,hsv,rgb){
+        nowSelected=hex;
+        if(document.querySelector("#ctys")){
+          document.querySelector("#ctys").style.background=hex;
+          document.querySelector("#ctys").style.color=hex;
+        }
+        if(document.querySelector("#ctysHex")){
+          document.querySelector("#ctysHex").textContent='('+hex+')';
+        }
+
+      });
+      container.appendChild(colpick);
+    },
+    buttons:[
+      {value:"취소",
+      onclick:function(){showDialog.close();}},
+      {value:"확인",
+      color:"blue",
+      onclick:function(){if(nowSelected!=null) setColor(nowSelected); showDialog.close();}}
+    ]
+  });
+};
+
 editorModifier.addButton('<strong>가</strong>', '굵게', WrapClosure("'''"));
 editorModifier.addButton('<i>가</i>', '기울게', WrapClosure("''"));
 editorModifier.addButton('<del>가</del>', '취소선', WrapClosure("--"));
@@ -41,3 +86,4 @@ editorModifier.addButton('가<sub>가</sub>', '아랫첨자', WrapClosure(",,"))
 editorModifier.addButton('가<sup>가</sup>', '윗첨자', WrapClosure("^^"));
 editorModifier.addButton('<span style="font-size:75%;">가</span>', '글씨 작게', fontSizeMarkUp(-1));
 editorModifier.addButton('<span style="font-size:125%;">가</span>', '글씨 크게', fontSizeMarkUp(1));
+editorModifier.addButton('<span style="color:red;">가</span>','글씨색',fontColorMarkUp);
