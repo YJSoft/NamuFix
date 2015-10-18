@@ -9,13 +9,13 @@ function NamuUploader() {
     query.append('document', options.name);
     query.append('text', options.description);
     query.append('log', options.log);
+    query.append('baserev', 0);
     GM_xmlhttpRequest({
       method: 'POST',
       url: 'https://namu.wiki/Upload',
       data: query,
       onload: function(res) {
         var parser = new DOMParser();
-        prompt('debug', res.responseText);
         options.successed = parser.parseFromString(res.responseText, "text/html").querySelector("p.wiki-edit-date") != null;
         _funclocal.onuploaded(options);
       }

@@ -151,6 +151,44 @@ if (typeof Array.prototype.remove === "undefined") {
     }
 })(this);
 
+function bsModal() {
+    var root = document.createElement("div");
+    var controller = {};
+
+    root.className = "modal";
+    root.style.display = "none";
+    root.setAttribute("role", "dialog");
+    root.innerHTML = '<div class="modal-dialog"><div class="modal-content"><div class="modal-header"><button type="button" class="close" data-dismiss="modal">&times;</button><h4 class="modal-title">NamuFix</h4></div><div class="modal-body"><p>오류?</p></div><div class="modal-footer"></div></div></div>';
+
+    var body = root.querySelector(".modal-body");
+    document.body.appendChild(root);
+    controller.title = function(value) {
+        root.querySelector(".modal-header > .modal-title").textContent = value;
+    };
+    controller.content = function(callback) {
+        callback(body);
+    };
+    controller.button = function(text, callback) {
+        var btn = document.createElement("button");
+        btn.className = "btn btn-default";
+        btn.setAttribute("type", "button");
+        btn.innerHTML = text;
+        btn.addEventListener("click", function() {
+            callback(body);
+        });
+        root.querySelector(".modal-footer").appendChild(btn);
+    };
+    controller.show = function() {
+        root.style.display = "block";
+        root.className = "modal in";
+    };
+    controller.close = function() {
+        root.style.display = "none";
+        root.className = "modal";
+    };
+    return controller;
+}
+
 function getEnvironment() {
     var ENV = {};
     ENV.IsSSL = location.protocol == "https:";
@@ -480,13 +518,13 @@ function NamuUploader() {
         query.append('document', options.name);
         query.append('text', options.description);
         query.append('log', options.log);
+        query.append('baserev', 0);
         GM_xmlhttpRequest({
             method: 'POST',
             url: 'https://namu.wiki/Upload',
             data: query,
             onload: function(res) {
                 var parser = new DOMParser();
-                prompt('debug', res.responseText);
                 options.successed = parser.parseFromString(res.responseText, "text/html").querySelector("p.wiki-edit-date") != null;
                 _funclocal.onuploaded(options);
             }
@@ -508,25 +546,68 @@ conditionalLoader.register("IsEditing", function() {
                 editor.destroy();
             })
             textHelper(textarea, function(textProc) {
-                editor.button('T', function(c) {
+                editor.button('<span class="ion-image"></span>', function(c) {
                     var namu = new NamuUploader();
                     getFile(function(files, finish) {
-                        var obj = {
-                            file: files[0],
-                            name: '파일:직각삼각형.png',
-                            text: '[Include(틀:이미지 라이센스/PD-shape)]\n== 기본 정보 ==\n|| 저작자 || LiteHell ||\n|| 출처 || 자작 ||',
-                            log: "테스트"
-                        };
+                        if (files.length < 0) {
+                            alert("선택한 파일이 없습니다!");
+                            return;
+                        } else if (files.length > 1) {
+                            alert("파일을 한개만 선택해주세요!");
+                            return;
+                        } else {
+                            var options = {};
+                            options.file = files[0];
+                            options.name = files[0].length;
+                            options.description = "알 수 없음";
+                            options.log = "Uploaded via NamuFix";
+                        }
+                        var win = bsModal();
+                        win.title("나무위키 이미지 업로드");
+                        win.content(function(container) {
+                            container.innerHTML = '' +
+                                '          <label for="filename">파일 이름</label>' +
+                                '            <div class="input-group">' +
+                                '              <input type="text" class="form-control" id="filename">' +
+                                '            </div>' +
+                                '            <label for="from">출처</label>' +
+                                '            <div class="input-group">' +
+                                '              <input type="text" class="form-control" id="from">' +
+                                '            </div>' +
+                                '            <label for="datetime">날짜</label>' +
+                                '            <div class="input-group">' +
+                                '              <input type="text" class="form-control" id="datetime">' +
+                                '            </div>' +
+                                '            <label for="holder">저작자</label>' +
+                                '            <div class="input-group">' +
+                                '              <input type="text" class="form-control" id="holder">' +
+                                '            </div>' +
+                                '            <label for="copyright">저작권</label>' +
+                                '            <div class="input-group">' +
+                                '              <input type="text" class="form-control" id="copyright">' +
+                                '            </div>' +
+                                '            <label for="etc">기타</label>' +
+                                '            <div class="input-group">' +
+                                '              <input type="text" class="form-control" id="etc">' +
+                                '            </div>' +
+                                '            <label for="license">라이선스</label>' +
+                                '            <div class="input-group">' +
+                                '              <input type="text" class="form-control" id="license">' +
+                                '            </div>' +
+                                '            <label for="category">분류</label>' +
+                                '            <div class="input-group">' +
+                                '              <input type="text" class="form-control" id="category">' +
+                                '            </div>'
+                        });
+                        win.show();
                         namu.onstarted = function(o) {
-                            console.log("=== ONSTARTED ===".concat(JSON.stringify(o)));
+
                         }
-                        namu.onfinished = function(o) {
-                            console.log("=== ONFINISHED ===".concat(JSON.stringify(o)));
-                            finish();
+                        namu.onuploaded = function(o) {
+
                         }
-                        namu.upload(obj);
-                    });
-                })
+                    })
+                });
             });
         });
     }
