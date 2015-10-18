@@ -1,0 +1,18 @@
+.nf-tabs > ul {
+  padding: 0px !important;
+  margin: 0px !important;
+}
+.nf-tabs > ul > li {
+  display: inline-block;
+  font-family: sans-serif !important;
+  border: none;
+  background: #646771;
+  color: white;
+  padding: 8px 20px 5px 20px;
+  font-weight: normal;
+  list-style-type: none;
+  cursor: pointer;
+}
+.nf-tabs > ul > li.selected {
+  background: #31343E;
+}

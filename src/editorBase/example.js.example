@@ -1,0 +1,34 @@
+editorBase(document.querySelector('textarea:not([readonly])'), function(editor) {
+  editor.button('T', function(c) {
+    alert('Hello');
+  });
+  editor.button('1', function(c) {
+    alert('1');
+    c.activate();
+    alert('111');
+    c.deactivate();
+    alert('0000');
+  });
+  editor.dropdown('D', function(c) {
+    c.button('1', 'first', function() {
+      alert('Your choice : 1');
+    });
+    c.button('2', 'ffirst', function() {
+      alert('Your choice : 2');
+    });
+    c.button('3', 'fffirst', function() {
+      alert('Your choice : 3');
+    });
+  });
+  editor.dropdown('d', function(c) {
+    c.button('4', 'ffffirst', function() {
+      alert('Your choice : 4');
+    });
+    c.button('5', 'fffffirst', function() {
+      alert('Your choice : 5');
+    });
+    c.button('6', 'ffffffirst', function() {
+      alert('Your choice : 6');
+    });
+  });
+});
