@@ -17,6 +17,9 @@ function textHelper(textarea, callback) {
       textarea.selectionEnd = s + arguments[0].length;
     }
   };
+  r.appendSelection = function(r) {
+    r.selectionText(r.selectionTest().concat(r));
+  }
   r.selectionStart = function() {
     if (arguments.length == 0) return textarea.selectionStart;
     else textarea.selectionStart = arguments[0];

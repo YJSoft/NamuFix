@@ -21,4 +21,33 @@ function NamuUploader() {
       }
     })
   }
+  this.getLicensesAndCategories = function(callback) {
+    GM_xmlhttpRequest({
+      method: 'GET',
+      url: 'https://namu.wiki/Upload',
+      onload: function(res) {
+        var parser = new DOMParser();
+        var doc = parser.parseFromString(res.responseText, "text/html");
+        var result = {
+          licenses: [],
+          categories: []
+        };
+        var licenseOptions = doc.querySelectorAll("#licenseSelect option");
+        var categoryOptions = doc.querySelectorAll("#categorySelect option");
+        for (var i = 0; i < licenseOptions.length; i++) {
+          var licenseOption = licenseOptions[i];
+          if (licenseOption.value.trim().length != 0) {
+            result.licenses.push(licenseOption.value);
+          }
+        }
+        for (var i = 0; i < categoryOptions.length; i++) {
+          var categoryOption = categoryOptions[i];
+          if (categoryOption.value.trim().length != 0) {
+            result.categories.push(categoryOption.value);
+          }
+        }
+        callback(result);
+      }
+    })
+  };
 }
