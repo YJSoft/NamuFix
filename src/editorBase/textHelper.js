@@ -18,7 +18,7 @@ function textHelper(textarea, callback) {
     }
   };
   r.appendSelection = function(r) {
-    r.selectionText(r.selectionTest().concat(r));
+    this.selectionText(this.selectionTest().concat(r));
   }
   r.selectionStart = function() {
     if (arguments.length == 0) return textarea.selectionStart;

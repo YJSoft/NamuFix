@@ -28,690 +28,699 @@
 // ==/UserScript==
 
 var conditionalLoader = (function() {
-    var objects = {},
-        loaded = [];
-    var t = {};
-    t.register = function() {
-        if (arguments.length == 1) {
-            objects[arguments[0].pattern] = arguments[0]
-        } else if (arguments.length == 2) {
-            objects[arguments[0]] = arguments[1];
-        }
-    };
-    t.load = function() {
-        var patterns = Object.keys(objects);
-        for (var i = 0; i < patterns.length; i++) {
-            var pattern = patterns[i];
-            var loadThis = false;
-            loadThis = typeof pattern === "string" ? getEnvironment()[pattern] : pattern.test(location.pathname);
-            if (loadThis) {
-                var objToload = typeof objects[pattern] === "function" ? new objects[pattern] : objects[pattern];
-                objToload.load();
-                if (objToload.loaded)
-                    loaded.push(objToload);
-            }
-        }
-    };
-    t.clean = function() {
-        var l = loaded.length;
-        clearAllIntervals_s();
-        for (var i = 0; i < l; i++) {
-            loaded[i].unload();
-        }
-        loaded = loaded.splice(0, l);
+  var objects = {},
+    loaded = [];
+  var t = {};
+  t.register = function() {
+    if (arguments.length == 1) {
+      objects[arguments[0].pattern] = arguments[0]
+    } else if (arguments.length == 2) {
+      objects[arguments[0]] = arguments[1];
     }
-    return t;
+  };
+  t.load = function() {
+    var patterns = Object.keys(objects);
+    for (var i = 0; i < patterns.length; i++) {
+      var pattern = patterns[i];
+      var loadThis = false;
+      loadThis = typeof pattern === "string" ? getEnvironment()[pattern] : pattern.test(location.pathname);
+      if (loadThis) {
+        var objToload = typeof objects[pattern] === "function" ? new objects[pattern] : objects[pattern];
+        objToload.load();
+        if (objToload.loaded)
+          loaded.push(objToload);
+      }
+    }
+  };
+  t.clean = function() {
+    var l = loaded.length;
+    clearAllIntervals_s();
+    for (var i = 0; i < l; i++) {
+      loaded[i].unload();
+    }
+    loaded = loaded.splice(0, l);
+  }
+  return t;
 })();
 
 (function() {
-    // callbacks
-    function callbackWhenStarted() {
-        clearAllIntervals_s();
-        conditionalLoader.clean();
-    }
+  // callbacks
+  function callbackWhenStarted() {
+    clearAllIntervals_s();
+    conditionalLoader.clean();
+  }
 
-    function callbackWhenFinished() {
-        conditionalLoader.load();
-    }
+  function callbackWhenFinished() {
+    conditionalLoader.load();
+  }
 
-    // create elements
-    var pjaxButton = document.createElement("button"), // pjax:start
-        pjaxButton2 = document.createElement("button"); // pjax:end
-    var scriptElement = document.createElement("script");
+  // create elements
+  var pjaxButton = document.createElement("button"), // pjax:start
+    pjaxButton2 = document.createElement("button"); // pjax:end
+  var scriptElement = document.createElement("script");
 
-    // configure button
-    [pjaxButton, pjaxButton2].forEach(function(item, index) {
-        item.style.display = "none";
-        item.id = "nfFuckingPJAX".concat(index);
-        item.addEventListener("click", index == 0 ? callbackWhenStarted : callbackWhenFinished);
-        document.body.appendChild(item);
-    });
+  // configure button
+  [pjaxButton, pjaxButton2].forEach(function(item, index) {
+    item.style.display = "none";
+    item.id = "nfFuckingPJAX".concat(index);
+    item.addEventListener("click", index == 0 ? callbackWhenStarted : callbackWhenFinished);
+    document.body.appendChild(item);
+  });
 
-    // configure script
-    scriptElement.setAttribute("type", "text/javascript");
-    scriptElement.innerHTML = '$(document).bind("pjax:end", function(){document.querySelector("button#nfFuckingPJAX1").click();});' +
-        '$(document).bind("pjax:start", function(){document.querySelector("button#nfFuckingPJAX0").click();});';
+  // configure script
+  scriptElement.setAttribute("type", "text/javascript");
+  scriptElement.innerHTML = '$(document).bind("pjax:end", function(){document.querySelector("button#nfFuckingPJAX1").click();});' +
+    '$(document).bind("pjax:start", function(){document.querySelector("button#nfFuckingPJAX0").click();});';
 
-    // add script
-    document.head.appendChild(scriptElement);
+  // add script
+  document.head.appendChild(scriptElement);
 })();
 
 if (typeof Array.prototype.forEach === "undefined") {
-    Array.prototype.forEach = function(callback) {
-        var index = 0;
+  Array.prototype.forEach = function(callback) {
+    var index = 0;
 
-        function recursiveLoop() {
-            var now = index++;
-            if (now < this.length) {
-                callback(this[now], now, this);
-            } else {
-                return;
-            }
-            recursiveLoop();
-        }
-        recursiveLoop();
-    };
+    function recursiveLoop() {
+      var now = index++;
+      if (now < this.length) {
+        callback(this[now], now, this);
+      } else {
+        return;
+      }
+      recursiveLoop();
+    }
+    recursiveLoop();
+  };
 }
 if (typeof Array.prototype.contains === "undefined") {
-    Array.prototype.contains = function(item) {
-        return this.indexOf(item) != -1;
-    };
+  Array.prototype.contains = function(item) {
+    return this.indexOf(item) != -1;
+  };
 }
 if (typeof Array.prototype.remove === "undefined") {
-    Array.prototype.remove = function(item) {
-        var removed = this;
-        while (true) {
-            var index = removed.indexOf(item);
-            if (index < 0) break;
-            removed = removed.splice(index, 1);
-        }
-        return removed;
+  Array.prototype.remove = function(item) {
+    var removed = this;
+    while (true) {
+      var index = removed.indexOf(item);
+      if (index < 0) break;
+      removed = removed.splice(index, 1);
     }
+    return removed;
+  }
 }
 
 (function(global) {
-    var intervalList = [];
-    global.setInterval_s = function(func, interval) {
-        var no = setInterval(func, interval);
-        intervalList.push(no);
-        return no;
+  var intervalList = [];
+  global.setInterval_s = function(func, interval) {
+    var no = setInterval(func, interval);
+    intervalList.push(no);
+    return no;
+  }
+  global.clearInterval_s = function(no) {
+    if (intervalList.contains(no)) {
+      clearInterval(no);
     }
-    global.clearInterval_s = function(no) {
-        if (intervalList.contains(no)) {
-            clearInterval(no);
-        }
-        intervalList = intervalList.remove(no);
+    intervalList = intervalList.remove(no);
+  }
+  global.clearAllIntervals_s = function() {
+    var l = intervalList.length;
+    for (var i = 0; i < l; i++) {
+      clearInterval(intervalList[i]);
     }
-    global.clearAllIntervals_s = function() {
-        var l = intervalList.length;
-        for (var i = 0; i < l; i++) {
-            clearInterval(intervalList[i]);
-        }
-        intervalList = intervalList.splice(0, l);
-    }
+    intervalList = intervalList.splice(0, l);
+  }
 })(this);
 
 function bsModal() {
-    var root = document.createElement("div");
-    var controller = {};
+  var root = document.createElement("div");
+  var controller = {};
 
-    root.className = "modal";
+  root.className = "modal";
+  root.style.display = "none";
+  root.setAttribute("role", "dialog");
+  root.innerHTML = '<div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h4 class="modal-title">NamuFix</h4></div><div class="modal-body"><p>오류?</p></div><div class="modal-footer"></div></div></div>';
+
+  var modalBody = root.querySelector(".modal-body");
+  var body = document.body;
+  body.appendChild(root);
+  controller.title = function(value) {
+    root.querySelector(".modal-header > .modal-title").textContent = value;
+  };
+  controller.content = function(callback) {
+    callback(modalBody);
+  };
+  controller.button = function(text, callback) {
+    var btn = document.createElement("button");
+    btn.className = "btn btn-default";
+    btn.setAttribute("type", "button");
+    btn.innerHTML = text;
+    btn.addEventListener("click", function() {
+      callback(modalBody);
+    });
+    root.querySelector(".modal-footer").appendChild(btn);
+  };
+  controller.show = function() {
+    root.style.display = "block";
+    root.className = "modal in";
+    if (body.className.indexOf("modal-open") == -1) body.className += " modal-open";
+  };
+  controller.close = function() {
     root.style.display = "none";
-    root.setAttribute("role", "dialog");
-    root.innerHTML = '<div class="modal-dialog"><div class="modal-content"><div class="modal-header"><h4 class="modal-title">NamuFix</h4></div><div class="modal-body"><p>오류?</p></div><div class="modal-footer"></div></div></div>';
-
-    var modalBody = root.querySelector(".modal-body");
-    var body = document.body;
-    body.appendChild(root);
-    controller.title = function(value) {
-        root.querySelector(".modal-header > .modal-title").textContent = value;
-    };
-    controller.content = function(callback) {
-        callback(modalBody);
-    };
-    controller.button = function(text, callback) {
-        var btn = document.createElement("button");
-        btn.className = "btn btn-default";
-        btn.setAttribute("type", "button");
-        btn.innerHTML = text;
-        btn.addEventListener("click", function() {
-            callback(modalBody);
-        });
-        root.querySelector(".modal-footer").appendChild(btn);
-    };
-    controller.show = function() {
-        root.style.display = "block";
-        root.className = "modal in";
-        if (body.className.indexOf("modal-open") == -1) body.className += " modal-open";
-    };
-    controller.close = function() {
-        root.style.display = "none";
-        root.className = "modal";
-        if (body.className.indexOf("modal-open") != -1) body.className = body.className.replace(/\s?modal\-open\s?/img, '');
-    };
-    controller.destroy = function() {
-        if (root.parentNode != null) root.parentNode.removeChild(root);
-    }
-    return controller;
+    root.className = "modal";
+    if (body.className.indexOf("modal-open") != -1) body.className = body.className.replace(/\s?modal\-open\s?/img, '');
+  };
+  controller.destroy = function() {
+    if (root.parentNode != null) root.parentNode.removeChild(root);
+  }
+  return controller;
 }
 
 function getEnvironment() {
-    var ENV = {};
-    ENV.IsSSL = location.protocol == "https:";
-    ENV.IsEditing = /^\/edit\/(.+?)/.test(location.pathname);
-    ENV.IsDiscussing = /^\/topic\/([0-9]+?)/.test(location.pathname);
-    ENV.IsDocument = /^\/w\/(.+)/.test(location.pathname); //&& document.querySelector('p.wiki-edit-date');
-    ENV.IsSettings = /^\/settings/.test(location.pathname);
-    ENV.IsUserPage = /^\/contribution\/(?:author|ip)\/.+\/(?:document|discuss)/.test(location.pathname);
-    ENV.IsUploadPage = /^\/Upload$/.test(location.pathname);
-    ENV.IsDiff = /^\/diff\/.+/.test(location.pathname);
-    ENV.IsLoggedIn = document.querySelector('img.user-img') != null;
-    if (ENV.IsLoggedIn) {
-        ENV.UserName = document.querySelector('div.user-info > div.user-info > div:first-child').textContent.trim();
-    }
-    if (document.querySelector("input[name=section]"))
-        ENV.section = document.querySelector("input[name=section]").value;
-    else
-        ENV.section = -2;
-    if (document.querySelector("h1.title > a"))
-        ENV.docTitle = document.querySelector("h1.title > a").innerHTML;
-    else if (document.querySelector("h1.title"))
-        ENV.docTitle = document.querySelector("h1.title").innerHTML;
-    if (ENV.Discussing) {
-        ENV.topicNo = /^https?:\/\/(?:no-ssl\.|)namu\.wiki\/topic\/([0-9]+)/.exec(location.href)[1];
-        ENV.topicTitle = document.querySelector('article > h2').innerHTML;
-    }
-    if (ENV.IsDiff) {
-        //ENV.docTitle = /diff\/(.+?)\?/.exec(location.href)[1];
-        ENV.beforeRev = Number(/[\&\?]oldrev=([0-9]+)/.exec(location.href)[1]);
-        ENV.afterRev = Number(/[\&\?]rev=([0-9]+)/.exec(location.href)[1]);
-    }
-    return ENV;
+  var ENV = {};
+  ENV.IsSSL = location.protocol == "https:";
+  ENV.IsEditing = /^\/edit\/(.+?)/.test(location.pathname);
+  ENV.IsDiscussing = /^\/topic\/([0-9]+?)/.test(location.pathname);
+  ENV.IsDocument = /^\/w\/(.+)/.test(location.pathname); //&& document.querySelector('p.wiki-edit-date');
+  ENV.IsSettings = /^\/settings/.test(location.pathname);
+  ENV.IsUserPage = /^\/contribution\/(?:author|ip)\/.+\/(?:document|discuss)/.test(location.pathname);
+  ENV.IsUploadPage = /^\/Upload$/.test(location.pathname);
+  ENV.IsDiff = /^\/diff\/.+/.test(location.pathname);
+  ENV.IsLoggedIn = document.querySelector('img.user-img') != null;
+  if (ENV.IsLoggedIn) {
+    ENV.UserName = document.querySelector('div.user-info > div.user-info > div:first-child').textContent.trim();
+  }
+  if (document.querySelector("input[name=section]"))
+    ENV.section = document.querySelector("input[name=section]").value;
+  else
+    ENV.section = -2;
+  if (document.querySelector("h1.title > a"))
+    ENV.docTitle = document.querySelector("h1.title > a").innerHTML;
+  else if (document.querySelector("h1.title"))
+    ENV.docTitle = document.querySelector("h1.title").innerHTML;
+  if (ENV.Discussing) {
+    ENV.topicNo = /^https?:\/\/(?:no-ssl\.|)namu\.wiki\/topic\/([0-9]+)/.exec(location.href)[1];
+    ENV.topicTitle = document.querySelector('article > h2').innerHTML;
+  }
+  if (ENV.IsDiff) {
+    //ENV.docTitle = /diff\/(.+?)\?/.exec(location.href)[1];
+    ENV.beforeRev = Number(/[\&\?]oldrev=([0-9]+)/.exec(location.href)[1]);
+    ENV.afterRev = Number(/[\&\?]rev=([0-9]+)/.exec(location.href)[1]);
+  }
+  return ENV;
 }
 
 function getFile(callback, isMultiple) {
-    if (typeof isMultiple === "undefined") isMultiple = false;
-    var fileInput = document.createElement("input");
-    fileInput.setAttribute("type", "file");
-    fileInput.accept = "image/*";
-    fileInput.multiple = isMultiple;
-    fileInput.style.visiblity = "hidden";
-    fileInput.addEventListener("change", function(evt) {
-        callback(evt.target.files, function() {
-            fileInput.parentNode.removeChild(fileInput);
-        });
+  if (typeof isMultiple === "undefined") isMultiple = false;
+  var fileInput = document.createElement("input");
+  fileInput.setAttribute("type", "file");
+  fileInput.setAttribute("accept", "image/*");
+  if (isMultiple) fileInput.setAttribute("multiple", "multiple");
+  fileInput.style.visibility = "hidden";
+  fileInput.addEventListener("change", function(evt) {
+    callback(evt.target.files, function() {
+      evt.target.parentNode.removeChild(evt.target);
     });
-    document.body.appendChild(fileInput);
-    fileInput.click();
+  });
+  document.body.appendChild(fileInput);
+  fileInput.click();
 }
 
 function recusriveFor(array, callback) {
-    if (array.length < 1) return;
-    var index = 0;
+  if (array.length < 1) return;
+  var index = 0;
 
-    function recusriveLoop() {
-        var now = index++;
-        if (now == array.length | now > array.length) return;
-        callback(array[now], now, array.length, recusriveLoop);
-    }
-    recusriveLoop();
+  function recusriveLoop() {
+    var now = index++;
+    if (now == array.length | now > array.length) return;
+    callback(array[now], now, array.length, recusriveLoop);
+  }
+  recusriveLoop();
 }
 
 function editorBase(textarea, callback) {
-    var rootElement = document.createElement("div");
-    var menuElement = document.createElement("div");
-    var textareaParentElement = document.createElement("div");
+  var rootElement = document.createElement("div");
+  var menuElement = document.createElement("div");
+  var textareaParentElement = document.createElement("div");
 
-    // computer height
-    var oldHeight = window.getComputedStyle(textarea, null).height;
-    var newHeight = "calc(" + oldHeight + " + 50px)";
+  // computer height
+  var oldHeight = window.getComputedStyle(textarea, null).height;
+  var newHeight = "calc(" + oldHeight + " + 50px)";
 
-    // set height
-    rootElement.style.height = newHeight;
+  // set height
+  rootElement.style.height = newHeight;
 
-    // add Editor
-    textarea.parentNode.insertBefore(rootElement, textarea);
+  // add Editor
+  textarea.parentNode.insertBefore(rootElement, textarea);
 
-    // move textarea
-    textareaParentElement.appendChild(textarea);
-    textareaParentElement.className = "textarea";
-    menuElement.className = "menu";
-    rootElement.className = "nf-editor";
+  // move textarea
+  textareaParentElement.appendChild(textarea);
+  textareaParentElement.className = "textarea";
+  menuElement.className = "menu";
+  rootElement.className = "nf-editor";
 
-    // append to root Element
-    rootElement.appendChild(menuElement);
-    rootElement.appendChild(textareaParentElement);
+  // append to root Element
+  rootElement.appendChild(menuElement);
+  rootElement.appendChild(textareaParentElement);
 
-    var r = {};
-    r.button = function(text, callback) {
-        // make button
-        var button = document.createElement("div");
-        button.className = "button nf-menu-icon-style";
-        button.innerHTML = text;
+  var r = {};
+  r.button = function(text, callback) {
+    // make button
+    var button = document.createElement("div");
+    button.className = "button nf-menu-icon-style";
+    button.innerHTML = text;
 
-        // make caontroller
-        var controller = {
-            activate: function() {
-                if (button.className.indexOf('active') == -1) button.className = 'button nf-menu-icon-style active';
-            },
-            deactivate: function() {
-                if (button.className.indexOf('active') != -1) button.className = 'button nf-menu-icon-style';
-            },
-            click: function(callback) {
-                button.addEventListener("click", function() {
-                    callback(this);
-                });
-            },
-            getElement: function() {
-                return button;
-            }
-        };
-
-        // add Handler
-        if (arguments.length > 1) button.addEventListener("click", function() {
-            callback(controller);
+    // make caontroller
+    var controller = {
+      activate: function() {
+        if (button.className.indexOf('active') == -1) button.className = 'button nf-menu-icon-style active';
+      },
+      deactivate: function() {
+        if (button.className.indexOf('active') != -1) button.className = 'button nf-menu-icon-style';
+      },
+      click: function(callback) {
+        button.addEventListener("click", function() {
+          callback(this);
         });
-
-        // append
-        menuElement.appendChild(button);
-        return controller;
+      },
+      getElement: function() {
+        return button;
+      }
     };
-    r.dropdown = function(text, callback) {
-        var dropdownElement = document.createElement("div");
-        var dropdownController = {};
-        var subMenus = [];
-        var activated = false;
-        var tether = null;
 
-        // init dropdown element
-        dropdownElement.className = "nf-dropdown-menu";
-        dropdownElement.style.display = 'none';
-        dropdownElement.innerHTML = "<ul></ul>";
-        var ul = dropdownElement.querySelector('ul');
+    // add Handler
+    if (arguments.length > 1) button.addEventListener("click", function() {
+      callback(controller);
+    });
 
-        // add to somewhere
-        document.querySelector('article').appendChild(dropdownElement);
+    // append
+    menuElement.appendChild(button);
+    return controller;
+  };
+  r.dropdown = function(text, callback) {
+    var dropdownElement = document.createElement("div");
+    var dropdownController = {};
+    var subMenus = [];
+    var activated = false;
+    var tether = null;
 
-        // render function
-        function render() {
-            dropdownElement.innerHTML = '<ul class="dropdown-list"></ul>';
-            ul = dropdownElement.querySelector('ul');
-            for (var i = 0; i < subMenus.length; i++) {
-                var subMenu = subMenus[i];
-                var button = document.createElement("li");
-                button.innerHTML = '<div class="dropdown-item-icon nf-menu-icon-style">'.concat(subMenu.icon, '</div><div class="dropdown-item-description">', subMenu.text, '</div>');
+    // init dropdown element
+    dropdownElement.className = "nf-dropdown-menu";
+    dropdownElement.style.display = 'none';
+    dropdownElement.innerHTML = "<ul></ul>";
+    var ul = dropdownElement.querySelector('ul');
 
-                // add Handlers
-                if (typeof subMenu.onclick === "function") {
-                    button.addEventListener("click", subMenu.onclick);
-                } else if (typeof subMenu.onclick === "object" && subMenu.onclick.constructor == Array) {
-                    for (var j = 0; j < subMenu.onclick.length; j++) {
-                        button.addEventListener("click", subMenu.onclick[i]);
-                    }
-                }
+    // add to somewhere
+    document.querySelector('article').appendChild(dropdownElement);
 
-                // appendChild
-                ul.appendChild(button);
-            }
+    // render function
+    function render() {
+      dropdownElement.innerHTML = '<ul class="dropdown-list"></ul>';
+      ul = dropdownElement.querySelector('ul');
+      for (var i = 0; i < subMenus.length; i++) {
+        var subMenu = subMenus[i];
+        var button = document.createElement("li");
+        button.innerHTML = '<div class="dropdown-item-icon nf-menu-icon-style">'.concat(subMenu.icon, '</div><div class="dropdown-item-description">', subMenu.text, '</div>');
+
+        // add Handlers
+        if (typeof subMenu.onclick === "function") {
+          button.addEventListener("click", subMenu.onclick);
+        } else if (typeof subMenu.onclick === "object" && subMenu.onclick.constructor == Array) {
+          for (var j = 0; j < subMenu.onclick.length; j++) {
+            button.addEventListener("click", subMenu.onclick[i]);
+          }
         }
 
-        // controller
-        dropdownController.button = function(icon, text, callback) {
-            subMenus.push({
-                icon: icon,
-                text: text,
-                onclick: callback
-            });
-            render();
-        };
-
-        // add Button
-        this.button(text, function(controller) {
-            if (activated) {
-                controller.deactivate();
-                if (tether != null) {
-                    tether.disable();
-                    tether.destroy();
-                    tether = null;
-                }
-                dropdownElement.style.display = 'none';
-            } else {
-                controller.activate();
-                dropdownElement.style.display = '';
-                tether = new Tether({
-                    element: dropdownElement,
-                    target: controller.getElement(),
-                    attachment: 'top left',
-                    targetAttachment: 'bottom left'
-                });
-            }
-            activated = !activated;
-        });
-        callback(dropdownController);
-    };
-    r.destroy = function() {
-        rootElement.parentNode.insertBefore(textarea, rootElement);
-        rootElement.parentNode.removeChild(rootElement);
-    };
-    r.getDOMElement = function() {
-        return rootElement;
+        // appendChild
+        ul.appendChild(button);
+      }
     }
-    callback(r);
+
+    // controller
+    dropdownController.button = function(icon, text, callback) {
+      subMenus.push({
+        icon: icon,
+        text: text,
+        onclick: callback
+      });
+      render();
+    };
+
+    // add Button
+    this.button(text, function(controller) {
+      if (activated) {
+        controller.deactivate();
+        if (tether != null) {
+          tether.disable();
+          tether.destroy();
+          tether = null;
+        }
+        dropdownElement.style.display = 'none';
+      } else {
+        controller.activate();
+        dropdownElement.style.display = '';
+        tether = new Tether({
+          element: dropdownElement,
+          target: controller.getElement(),
+          attachment: 'top left',
+          targetAttachment: 'bottom left'
+        });
+      }
+      activated = !activated;
+    });
+    callback(dropdownController);
+  };
+  r.destroy = function() {
+    rootElement.parentNode.insertBefore(textarea, rootElement);
+    rootElement.parentNode.removeChild(rootElement);
+  };
+  r.getDOMElement = function() {
+    return rootElement;
+  }
+  callback(r);
 }
 
 function textHelper(textarea, callback) {
-    var r = {};
-    r.value = function() {
-        if (arguments.length == 0) return textarea.value;
-        else textarea.value = arguments[0];
-    };
-    r.selectionText = function() {
-        if (arguments.length == 0) return textarea.value.substring(textarea.selectionStart, textarea.selectionEnd);
-        else {
-            var s = textarea.selectionStart;
-            var t = textarea.value.substring(0, textarea.selectionStart);
-            t += arguments[0];
-            t += textarea.value.substring(textarea.selectionEnd);
-            textarea.value = t;
-            textarea.focus();
-            textarea.selectionStart = s;
-            textarea.selectionEnd = s + arguments[0].length;
-        }
-    };
-    r.appendSelection = function(r) {
-        r.selectionText(r.selectionTest().concat(r));
+  var r = {};
+  r.value = function() {
+    if (arguments.length == 0) return textarea.value;
+    else textarea.value = arguments[0];
+  };
+  r.selectionText = function() {
+    if (arguments.length == 0) return textarea.value.substring(textarea.selectionStart, textarea.selectionEnd);
+    else {
+      var s = textarea.selectionStart;
+      var t = textarea.value.substring(0, textarea.selectionStart);
+      t += arguments[0];
+      t += textarea.value.substring(textarea.selectionEnd);
+      textarea.value = t;
+      textarea.focus();
+      textarea.selectionStart = s;
+      textarea.selectionEnd = s + arguments[0].length;
     }
-    r.selectionStart = function() {
-        if (arguments.length == 0) return textarea.selectionStart;
-        else textarea.selectionStart = arguments[0];
-    };
-    r.selectionTest = function(r) {
-        return this.selectionText().search(r) != -1;
-    };
-    r.appendTest = function(v) {
-        this.selectionText(this.selectionText().concat(v));
+  };
+  r.appendSelection = function(r) {
+    r.selectionText(r.selectionTest().concat(r));
+  }
+  r.selectionStart = function() {
+    if (arguments.length == 0) return textarea.selectionStart;
+    else textarea.selectionStart = arguments[0];
+  };
+  r.selectionTest = function(r) {
+    return this.selectionText().search(r) != -1;
+  };
+  r.appendTest = function(v) {
+    this.selectionText(this.selectionText().concat(v));
+  }
+  r.valueTest = function(r) {
+    return this.value().search(r) != -1;
+  };
+  r.selectionEnd = function() {
+    if (arguments.length == 0) return textarea.selectionEnd;
+    else textarea.selectionEnd = arguments[0];
+  };
+  r.selectionLength = function() {
+    if (arguments.length == 0) return (textarea.selectionEnd - textarea.selectionStart);
+    else textarea.selectionEnd = textarea.selectionStart + arguments[0];
+  };
+  r.select = function(s, e) {
+    textarea.focus();
+    textarea.selectionStart = s;
+    if (typeof e !== 'undefined') textarea.selectionEnd = e;
+  }
+  r.WrapSelection = function(l, r) {
+    if (arguments.length == 1) var r = l;
+    var t = this.selectionText();
+    if (typeof t === 'undefined' || t == null || t == '') t = '내용';
+    var s = this.selectionStart()
+    t = l + t + r;
+    this.selectionText(t);
+    this.select(s + l.length, s + t.length - r.length)
+  };
+  r.ToggleWrapSelection = function(l, r) {
+    function isWrapped(t) {
+      return t.indexOf(l) == 0 && t.lastIndexOf(r) == (t.length - r.length);
     }
-    r.valueTest = function(r) {
-        return this.value().search(r) != -1;
-    };
-    r.selectionEnd = function() {
-        if (arguments.length == 0) return textarea.selectionEnd;
-        else textarea.selectionEnd = arguments[0];
-    };
-    r.selectionLength = function() {
-        if (arguments.length == 0) return (textarea.selectionEnd - textarea.selectionStart);
-        else textarea.selectionEnd = textarea.selectionStart + arguments[0];
-    };
-    r.select = function(s, e) {
-        textarea.focus();
-        textarea.selectionStart = s;
-        if (typeof e !== 'undefined') textarea.selectionEnd = e;
+    if (arguments.length == 1) var r = l;
+    var t = this.selectionText();
+    var t_m = this.value().substring(this.selectionStart() - l.length, this.selectionEnd() + r.length);
+    var wrappedInSelection = isWrapped(t);
+    var wrappedOutOfSelection = isWrapped(t_m);
+    if (wrappedInSelection) {
+      var s = this.selectionStart();
+      this.selectionText(t.substring(l.length, t.length - r.length));
+      this.select(s, s + t.length - l.length - r.length);
+    } else if (wrappedOutOfSelection) {
+      var s = this.selectionStart() - l.length;
+      this.selectionStart(s);
+      this.selectionEnd(s + t_m.length);
+      this.selectionText(t_m.substring(l.length, t_m.length - r.length));
+      this.select(s, s + t_m.length - l.length - r.length);
+    } else {
+      this.WrapSelection(l, r);
     }
-    r.WrapSelection = function(l, r) {
-        if (arguments.length == 1) var r = l;
-        var t = this.selectionText();
-        if (typeof t === 'undefined' || t == null || t == '') t = '내용';
-        var s = this.selectionStart()
-        t = l + t + r;
-        this.selectionText(t);
-        this.select(s + l.length, s + t.length - r.length)
-    };
-    r.ToggleWrapSelection = function(l, r) {
-        function isWrapped(t) {
-            return t.indexOf(l) == 0 && t.lastIndexOf(r) == (t.length - r.length);
-        }
-        if (arguments.length == 1) var r = l;
-        var t = this.selectionText();
-        var t_m = this.value().substring(this.selectionStart() - l.length, this.selectionEnd() + r.length);
-        var wrappedInSelection = isWrapped(t);
-        var wrappedOutOfSelection = isWrapped(t_m);
-        if (wrappedInSelection) {
-            var s = this.selectionStart();
-            this.selectionText(t.substring(l.length, t.length - r.length));
-            this.select(s, s + t.length - l.length - r.length);
-        } else if (wrappedOutOfSelection) {
-            var s = this.selectionStart() - l.length;
-            this.selectionStart(s);
-            this.selectionEnd(s + t_m.length);
-            this.selectionText(t_m.substring(l.length, t_m.length - r.length));
-            this.select(s, s + t_m.length - l.length - r.length);
-        } else {
-            this.WrapSelection(l, r);
-        }
-    };
-    callback(r);
+  };
+  callback(r);
 }
 
 function makeTabs() {
-    var div = document.createElement("div");
-    div.className = "nf-tabs";
-    div.innerHTML = "<ul></ul>";
-    var ul = div.querySelector("ul");
-    return {
-        tab: function(text) {
-            var item = document.createElement("li");
-            item.innerHTML = text;
-            item.addEventListener('click', function() {
-                var selectedTabs = div.querySelectorAll('li.selected');
-                for (var i = 0; i < selectedTabs.length; i++) {
-                    selectedTabs[i].className = selectedTabs[i].className.replace(/selected/mg, '');
-                }
-                item.className = "selected";
-            });
-            ul.appendChild(item);
-            return {
-                click: function(callback) {
-                    item.addEventListener('click', callback);
-                    return this;
-                },
-                selected: function() {
-                    if (item.className.indexOf('selected') == -1) item.className += ' selected';
-                    return this;
-                }
-            };
-        },
-        get: function() {
-            return div;
+  var div = document.createElement("div");
+  div.className = "nf-tabs";
+  div.innerHTML = "<ul></ul>";
+  var ul = div.querySelector("ul");
+  return {
+    tab: function(text) {
+      var item = document.createElement("li");
+      item.innerHTML = text;
+      item.addEventListener('click', function() {
+        var selectedTabs = div.querySelectorAll('li.selected');
+        for (var i = 0; i < selectedTabs.length; i++) {
+          selectedTabs[i].className = selectedTabs[i].className.replace(/selected/mg, '');
         }
-    };
+        item.className = "selected";
+      });
+      ul.appendChild(item);
+      return {
+        click: function(callback) {
+          item.addEventListener('click', callback);
+          return this;
+        },
+        selected: function() {
+          if (item.className.indexOf('selected') == -1) item.className += ' selected';
+          return this;
+        }
+      };
+    },
+    get: function() {
+      return div;
+    }
+  };
 }
 
 function NamuUploader() {
-    var _funclocal = this;
-    this.onuploaded = function() {};
-    this.onstarted = function() {};
-    this.upload = function(options) {
-        _funclocal.onstarted(options);
-        var query = new FormData();
-        query.append('file', options.file);
-        query.append('document', options.name);
-        query.append('text', options.description);
-        query.append('log', options.log);
-        query.append('baserev', 0);
-        GM_xmlhttpRequest({
-            method: 'POST',
-            url: 'https://namu.wiki/Upload',
-            data: query,
-            onload: function(res) {
-                var parser = new DOMParser();
-                options.successed = parser.parseFromString(res.responseText, "text/html").querySelector("p.wiki-edit-date") != null;
-                _funclocal.onuploaded(options);
-            }
-        })
-    }
-    this.getLicensesAndCategories = function(callback) {
-        GM_xmlhttpRequest({
-            method: 'GET',
-            url: 'https://namu.wiki/Upload',
-            onload: function(res) {
-                var parser = new DOMParser();
-                var doc = parser.parseFromString(res.responseText, "text/html");
-                var result = {
-                    licenses: [],
-                    categories: []
-                };
-                var licenseOptions = doc.querySelectorAll("#licenseSelect option");
-                var categoryOptions = doc.querySelectorAll("#categorySelect option");
-                for (var i = 0; i < licenseOptions.length; i++) {
-                    var licenseOption = licenseOptions[i];
-                    if (licenseOption.value.trim().length != 0) {
-                        result.licenses.push(licenseOption.value);
-                    }
-                }
-                for (var i = 0; i < categoryOptions.length; i++) {
-                    var categoryOption = categoryOptions[i];
-                    if (categoryOption.value.trim().length != 0) {
-                        result.categories.push(categoryOption.value);
-                    }
-                }
-                callback(result);
-            }
-        })
-    };
+  var _funclocal = this;
+  this.onuploaded = function() {};
+  this.onstarted = function() {};
+  this.upload = function(options) {
+    _funclocal.onstarted(options);
+    var query = new FormData();
+    query.append('file', options.file);
+    query.append('document', options.name);
+    query.append('text', options.description);
+    query.append('log', options.log);
+    query.append('baserev', 0);
+    GM_xmlhttpRequest({
+      method: 'POST',
+      url: 'https://namu.wiki/Upload',
+      data: query,
+      onload: function(res) {
+        var parser = new DOMParser();
+        options.successed = parser.parseFromString(res.responseText, "text/html").querySelector("p.wiki-edit-date") != null;
+        _funclocal.onuploaded(options);
+      }
+    })
+  }
+  this.getLicensesAndCategories = function(callback) {
+    GM_xmlhttpRequest({
+      method: 'GET',
+      url: 'https://namu.wiki/Upload',
+      onload: function(res) {
+        var parser = new DOMParser();
+        var doc = parser.parseFromString(res.responseText, "text/html");
+        var result = {
+          licenses: [],
+          categories: []
+        };
+        var licenseOptions = doc.querySelectorAll("#licenseSelect option");
+        var categoryOptions = doc.querySelectorAll("#categorySelect option");
+        for (var i = 0; i < licenseOptions.length; i++) {
+          var licenseOption = licenseOptions[i];
+          if (licenseOption.value.trim().length != 0) {
+            result.licenses.push(licenseOption.value);
+          }
+        }
+        for (var i = 0; i < categoryOptions.length; i++) {
+          var categoryOption = categoryOptions[i];
+          if (categoryOption.value.trim().length != 0) {
+            result.categories.push(categoryOption.value);
+          }
+        }
+        callback(result);
+      }
+    })
+  };
 }
 
 conditionalLoader.register("IsEditing", function() {
-    var destroyFunctions = [];
-    this.load = function() {
-        if (document.querySelector("textarea[readonly]")) {
-            this.loaded = false;
-            return;
-        }
-        var textarea = document.querySelector("textarea");
-        var tabs = makeTabs();
-        editorBase(textarea, function(editor) {
-            destroyFunctions.push(function() {
-                editor.destroy();
+  var destroyFunctions = [];
+
+  function stylishEditor(textarea, callback) {
+    editorBase(textarea, function(editor) {
+      textHelper(textarea, function(textProc) {
+        callback(editor, textProc)
+      });
+    })
+  }
+
+  this.load = function() {
+    if (document.querySelector("textarea[readonly]")) {
+      this.loaded = false;
+      return;
+    }
+    var textarea = document.querySelector("textarea");
+    var tabs = makeTabs();
+    stylishEditor(textarea, function(editor, textProc) {
+      editor.button('<span class="ion-image"></span>', function(c) {
+        console.log("DEBUG 1");
+        var namu = new NamuUploader();
+        var files = [];
+        namu.getLicensesAndCategories(function(licensesAndCategories) {
+          var licenses = licensesAndCategories.licenses;
+          var categories = licensesAndCategories.categories;
+          var win = bsModal();
+          win.title("나무위키 이미지 업로드");
+          var filenameInput, fileInput, licenseSelect, categorySelect, container;
+          win.content(function(container_p) {
+            container = container_p;
+            container.innerHTML = '' +
+              '          <label for="file">파일 선택</label>' +
+              '          <div><input type="file" accept="image/*" id="file"></div>' +
+              '          <label for="filename">파일 이름</label>' +
+              '            <div class="input-group">' +
+              '              <input type="text" class="form-control" id="filename">' +
+              '            </div>' +
+              '            <label for="from">출처</label>' +
+              '            <div class="input-group">' +
+              '              <input type="text" class="form-control" id="from" class="basicinfo" data-table-name="출처">' +
+              '            </div>' +
+              '            <label for="datetime">날짜</label>' +
+              '            <div class="input-group">' +
+              '              <input type="text" class="form-control" id="datetime" class="basicinfo" data-table-name="날짜">' +
+              '            </div>' +
+              '            <label for="holder">저작자</label>' +
+              '            <div class="input-group">' +
+              '              <input type="text" class="form-control" id="holder" class="basicinfo" data-table-name="저작자">' +
+              '            </div>' +
+              '            <label for="copyright">저작권</label>' +
+              '            <div class="input-group">' +
+              '              <input type="text" class="form-control" id="copyright" class="basicinfo" data-table-name="저작권">' +
+              '            </div>' +
+              '            <label for="etc">기타</label>' +
+              '            <div class="input-group">' +
+              '              <input type="text" class="form-control" id="etc" class="basicinfo" data-table-name="기타">' +
+              '            </div>' +
+              '            <label for="license">라이선스</label>' +
+              '            <div class="input-group">' +
+              '              <select class="form-control" id="license"></select>' +
+              '            </div>' +
+              '            <label for="category">분류</label>' +
+              '            <div class="input-group">' +
+              '               <select class="form-group" id="category" value="선택하세요">' +
+              '               </select>' +
+              '            </div>';
+
+            licenseSelect = container.querySelector("select#license");
+            categorySelect = container.querySelector("select#category");
+            filenameInput = container.querySelector("input#filename");
+            fileInput = container.querySelector("input#file");
+            fileInput.addEventListener("change", function(evt) {
+              if (evt.target.files.length == 1)
+                filenameInput.value = "파일:".concat(evt.target.files[0].name);
             })
-            textHelper(textarea, function(textProc) {
-                editor.button('<span class="ion-image"></span>', function(c) {
-                    var namu = new NamuUploader();
-                    namu.getLicensesAndCategories(function(licensesAndCategories) {
-                        getFile(function(files, finish) {
-                            if (files.length < 0) {
-                                alert("선택한 파일이 없습니다!");
-                                return;
-                            } else if (files.length > 1) {
-                                alert("파일을 한개만 선택해주세요!");
-                                return;
-                            } else {
-                                var options = {};
-                                var file = files[0];
-                                options.file = file;
-                                options.name = "파일:" + file.name;
-                                options.description = "알 수 없음";
-                                options.log = "Uploaded via NamuFix";
-                            }
-                            var licenses = licensesAndCategories.licenses;
-                            var categories = licensesAndCategories.categories;
-                            var win = bsModal();
-                            win.title("나무위키 이미지 업로드");
-                            win.content(function(container) {
-                                container.innerHTML = '' +
-                                    '          <label for="filename">파일 이름</label>' +
-                                    '            <div class="input-group">' +
-                                    '              <input type="text" class="form-control" id="filename">' +
-                                    '            </div>' +
-                                    '            <label for="from">출처</label>' +
-                                    '            <div class="input-group">' +
-                                    '              <input type="text" class="form-control" id="from" class="basicinfo" data-table-name="출처">' +
-                                    '            </div>' +
-                                    '            <label for="datetime">날짜</label>' +
-                                    '            <div class="input-group">' +
-                                    '              <input type="text" class="form-control" id="datetime" class="basicinfo" data-table-name="날짜">' +
-                                    '            </div>' +
-                                    '            <label for="holder">저작자</label>' +
-                                    '            <div class="input-group">' +
-                                    '              <input type="text" class="form-control" id="holder" class="basicinfo" data-table-name="저작자">' +
-                                    '            </div>' +
-                                    '            <label for="copyright">저작권</label>' +
-                                    '            <div class="input-group">' +
-                                    '              <input type="text" class="form-control" id="copyright" class="basicinfo" data-table-name="저작권">' +
-                                    '            </div>' +
-                                    '            <label for="etc">기타</label>' +
-                                    '            <div class="input-group">' +
-                                    '              <input type="text" class="form-control" id="etc" class="basicinfo" data-table-name="기타">' +
-                                    '            </div>' +
-                                    '            <label for="license">라이선스</label>' +
-                                    '            <div class="input-group">' +
-                                    '              <select class="form-control" id="license"></select>' +
-                                    '            </div>' +
-                                    '            <label for="category">분류</label>' +
-                                    '            <div class="input-group">' +
-                                    '               <select class="form-group" id="category" value="선택하세요">' +
-                                    '               </select>' +
-                                    '            </div>';
-
-                                var licenseSelect = container.querySelector("select#license");
-                                var categorySelect = container.querySelector("select#category");
-                                var filenameInput = container.querySelector("input#filename");
-                                filenameInput.value = "파일:".concat(file.name);
-                                licenses.forEach(function(name) {
-                                    var option = document.createElement("option");
-                                    option.text = name;
-                                    option.id = name;
-                                    option.value = name;
-                                    licenseSelect.add(option);
-                                });
-                                categories.forEach(function(name) {
-                                    var option = document.createElement("option");
-                                    option.text = name;
-                                    option.id = name;
-                                    option.value = name;
-                                    categorySelect.add(option);
-                                });
-                            });
-                            win.show();
-                            win.button("닫기", function() {
-                                win.close();
-                                win.destroy();
-                                finish();
-                            });
-                            win.button("업로드", function() {
-                                filenameInput.value = filenameInput.value.trim();
-                                if (filenameInput.value.length == 0) {
-                                    alert("올바르지 않은 파일 이름입니다.")
-                                    return;
-                                } else if (filenameInput.value.indexOf("파일:") != 0) {
-                                    alert("파일 이름은 \"파일:\"으로 시작해야 합니다.(\" 빼고)");
-                                    return;
-                                }
-                                options.name = filenameInput.value;
-                                options.description = "[include(" + licenseSelect.value + ")]\n\n== 기본 정보==\n";
-                                var basicinfoEntries = container.querySelectorAll(".basicinfo");
-                                for (var i = 0; i < basicinfoEntries.length; i++) {
-                                    var basicinfoEntry = basicinfoEntries[i];
-                                    if (basicinfoEntry.value.trim().length != 0) {
-                                        options.description += "|| " + basicinfoEntry.dataset.tableName + " || " + basicinfoEntry.value + " ||\n";
-                                    }
-                                }
-                                options.log = "Uploaded via NamuFix";
-                                namu.upload(options);
-                            });
-                            namu.onstarted = function(o) {
-                                // Nothing to do here.
-                            }
-                            namu.onuploaded = function(o) {
-                                if (o.successed)
-                                    textProc.appendSelection(options.name);
-                                else
-                                    alert("오류가 발생했습니다.");
-
-                                win.close();
-                                win.destroy();
-                                finish();
-                            }
-                        })
-                    })
-                });
+            licenses.forEach(function(name) {
+              var option = document.createElement("option");
+              option.text = name;
+              option.id = name;
+              option.value = name;
+              licenseSelect.add(option);
             });
-        });
-    }
-    this.unload = function() {
-        destroyFunctions.forEach(function(func) {
-            func();
-        });
-    }
+            categories.forEach(function(name) {
+              var option = document.createElement("option");
+              option.text = name;
+              option.id = name;
+              option.value = name;
+              categorySelect.add(option);
+            });
+          });
+          win.show();
+          win.button("닫기", function() {
+            win.close();
+            win.destroy();
+          });
+          win.button("업로드", function() {
+            var options = {};
+            var files = document.querySelector("input#file").files;
+            if (files.length < 0) {
+              alert("선택한 파일이 없습니다!");
+              return;
+            } else if (files.length > 1) {
+              alert("파일을 한개만 선택해주세요!");
+              return;
+            } else {
+              var file = files[0];
+              options.file = file;
+              options.log = "Uploaded via NamuFix";
+            }
+            filenameInput.value = filenameInput.value.trim();
+            if (filenameInput.value.length == 0) {
+              alert("올바르지 않은 파일 이름입니다.")
+              return;
+            } else if (filenameInput.value.indexOf("파일:") != 0) {
+              alert("파일 이름은 \"파일:\"으로 시작해야 합니다.(\" 빼고)");
+              return;
+            }
+            options.name = filenameInput.value;
+            options.description = "[include(" + licenseSelect.value + ")]\n\n== 기본 정보==\n";
+            var basicinfoEntries = container.querySelectorAll(".basicinfo");
+            for (var i = 0; i < basicinfoEntries.length; i++) {
+              var basicinfoEntry = basicinfoEntries[i];
+              if (basicinfoEntry.value.trim().length != 0) {
+                options.description += "|| " + basicinfoEntry.dataset.tableName + " || " + basicinfoEntry.value + " ||\n";
+              }
+            }
+            options.description += "\n[[" + categorySelect.value + "]"
+            namu.upload(options);
+          });
+          namu.onstarted = function(o) {
+            // Nothing to do here.
+          }
+          namu.onuploaded = function(o) {
+            if (o.successed)
+              textProc.appendSelection(o.name);
+            else
+              alert("오류가 발생했습니다.");
+
+            win.close();
+            win.destroy();
+          }
+        })
+      });
+    });
+  }
+  this.unload = function() {
+    destroyFunctions.forEach(function(func) {
+      func();
+    });
+  }
 });
 
 conditionalLoader.load();
