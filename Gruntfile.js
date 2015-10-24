@@ -13,7 +13,7 @@ module.exports = function(grunt) {
       },
       finish: {
         src: ['stage/core_versioned.js', 'stage/editorBase.js', 'stage/pageScripts.js', 'stage/NamuFix.esacped.css.js'],
-        dest: 'NamuFix.dist.user.js'
+        dest: 'NamuFix.user.js'
       },
     },
     replace: {
@@ -31,12 +31,12 @@ module.exports = function(grunt) {
       }
     },
     jsbeautifier: {
-      files: ["NamuFix.dist.user.js", "stage/NamuFix.css"]
+      files: ["NamuFix.user.js", "stage/NamuFix.css"]
     },
     jsvalidate: {
       js: {
         files: {
-          src: ["NamuFix.dist.user.js"]
+          src: ["NamuFix.user.js"]
         }
       }
     },
