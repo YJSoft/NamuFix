@@ -37,12 +37,13 @@ conditionalLoader.register("IsEditing", function() {
             container = container_p;
             container.innerHTML = '' +
               '          <label for="file">파일 선택</label>' +
-              '          <div><input type="file" accept="image/*" id="file" multiple></div>' +
+              '          <div><input type="file" accept="image/*" id="file"></div>' +
+              //'          <div><input type="file" accept="image/*" id="file" multiple></div>' +
               '          <label for="filename">파일 이름</label>' +
               '            <div class="input-group">' +
               '              <input type="text" class="form-control" id="filename">' +
               '            </div>' +
-              '            <p>참고 : 파일이 여러개면 파일 이름은 그 파일 각각의 이름으로 결정됩니다.</p>' +
+              //'            <p>참고 : 파일이 여러개면 파일 이름은 그 파일 각각의 이름으로 결정됩니다.</p>' +
               '            <label for="from">출처</label>' +
               '            <div class="input-group">' +
               '              <input type="text" class="form-control basicinfo" id="from" data-table-name="출처">' +
