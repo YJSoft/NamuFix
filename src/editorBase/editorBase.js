@@ -5,7 +5,7 @@ function editorBase(textarea, callback) {
 
   // computer height
   var oldHeight = window.getComputedStyle(textarea, null).height;
-  var newHeight = "calc("+oldHeight+" + 50px)";
+  var newHeight = "calc(" + oldHeight + " + 50px)";
 
   // set height
   rootElement.style.height = newHeight;
@@ -136,6 +136,9 @@ function editorBase(textarea, callback) {
   };
   r.getDOMElement = function() {
     return rootElement;
+  }
+  r.removable = function(object) {
+    object.makeRemovable(rootElement);
   }
   callback(r);
 }

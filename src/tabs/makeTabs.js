@@ -28,6 +28,9 @@ function makeTabs() {
     },
     get: function() {
       return div;
+    },
+    removable: function(obj) {
+      obj.makeRemovable(div);
     }
   };
 }

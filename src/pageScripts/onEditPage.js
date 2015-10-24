@@ -1,41 +1,48 @@
 conditionalLoader.register("IsEditing", function() {
-  var destroyFunctions = [];
+  console.log(typeof createElement_s);
+  console.log(typeof setInterval_s);
+  console.log(typeof getFile);
+  var s_createElement = new createElement_s();
+  var createElement = s_createElement.createElement;
 
   function stylishEditor(textarea, callback) {
     editorBase(textarea, function(editor) {
       textHelper(textarea, function(textProc) {
+        editor.removable(s_createElement);
         callback(editor, textProc)
       });
     })
   }
-
+  var higherThis = this;
   this.load = function() {
     if (document.querySelector("textarea[readonly]")) {
-      this.loaded = false;
+      higherThis.loaded = false;
       return;
     }
     var textarea = document.querySelector("textarea");
     var tabs = makeTabs();
+    tabs.removable(s_createElement);
     stylishEditor(textarea, function(editor, textProc) {
-      editor.button('<span class="ion-image"></span>', function(c) {
-        console.log("DEBUG 1");
+      editor.button('<span class="ion-image"></span>', function() {
         var namu = new NamuUploader();
         var files = [];
         namu.getLicensesAndCategories(function(licensesAndCategories) {
           var licenses = licensesAndCategories.licenses;
           var categories = licensesAndCategories.categories;
           var win = bsModal();
+          win.removable(s_createElement);
           win.title("나무위키 이미지 업로드");
           var filenameInput, fileInput, licenseSelect, categorySelect, container;
           win.content(function(container_p) {
             container = container_p;
             container.innerHTML = '' +
               '          <label for="file">파일 선택</label>' +
-              '          <div><input type="file" accept="image/*" id="file"></div>' +
+              '          <div><input type="file" accept="image/*" id="file" multiple></div>' +
               '          <label for="filename">파일 이름</label>' +
               '            <div class="input-group">' +
               '              <input type="text" class="form-control" id="filename">' +
               '            </div>' +
+              '            <p>참고 : 파일이 여러개면 파일 이름은 그 파일 각각의 이름으로 결정됩니다.</p>' +
               '            <label for="from">출처</label>' +
               '            <div class="input-group">' +
               '              <input type="text" class="form-control basicinfo" id="from" data-table-name="출처">' +
@@ -95,58 +102,70 @@ conditionalLoader.register("IsEditing", function() {
             win.destroy();
           });
           win.button("업로드", function() {
-            var options = {};
+            function uploadFile(f, n) {
+              var options = {};
+              options.log = "Uploaded via NamuFix";
+              options.file = f;
+              options.name = n;
+              options.description = "[include(" + licenseSelect.value + ")]\n\n== 기본 정보 ==\n";
+              var basicinfoEntries = container.querySelectorAll(".basicinfo");
+              for (var i = 0; i < basicinfoEntries.length; i++) {
+                var basicinfoEntry = basicinfoEntries[i];
+                if (basicinfoEntry.value.trim().length != 0) {
+                  options.description += "|| " + basicinfoEntry.dataset.tableName + " || " + basicinfoEntry.value + " ||\n";
+                }
+              }
+              options.description += "\n[[" + categorySelect.value + "]]"
+              namu.upload(options);
+            }
             var files = document.querySelector("input#file").files;
             if (files.length < 0) {
               alert("선택한 파일이 없습니다!");
               return;
-            } else if (files.length > 1) {
-              alert("파일을 한개만 선택해주세요!");
-              return;
-            } else {
-              var file = files[0];
-              options.file = file;
-              options.log = "Uploaded via NamuFix";
-            }
-            filenameInput.value = filenameInput.value.trim();
-            if (filenameInput.value.length == 0) {
-              alert("올바르지 않은 파일 이름입니다.")
-              return;
-            } else if (filenameInput.value.indexOf("파일:") != 0) {
-              alert("파일 이름은 \"파일:\"으로 시작해야 합니다.(\" 빼고)");
-              return;
-            }
-            options.name = filenameInput.value;
-            options.description = "[include(" + licenseSelect.value + ")]\n\n== 기본 정보==\n";
-            var basicinfoEntries = container.querySelectorAll(".basicinfo");
-            for (var i = 0; i < basicinfoEntries.length; i++) {
-              var basicinfoEntry = basicinfoEntries[i];
-              if (basicinfoEntry.value.trim().length != 0) {
-                options.description += "|| " + basicinfoEntry.dataset.tableName + " || " + basicinfoEntry.value + " ||\n";
+            } else if (files.length == 1) {
+              filenameInput.value = filenameInput.value.trim();
+              if (filenameInput.value.length == 0) {
+                alert("올바르지 않은 파일 이름입니다.")
+                return;
+              } else if (filenameInput.value.indexOf("파일:") != 0) {
+                alert("파일 이름은 \"파일:\"으로 시작해야 합니다.(\" 빼고)");
+                return;
               }
             }
-            options.description += "[[분류:" + categorySelect.value + "]]"
-            namu.upload(options);
-          });
-          namu.onstarted = function(o) {
-            // Nothing to do here.
-          }
-          namu.onuploaded = function(o) {
-            if (o.successed)
-              textProc.appendSelection(o.name);
-            else
-              alert("오류가 발생했습니다.");
+            var waitingWin = bsModal();
+            waitingWin.title("업로드중");
+            waitingWin.content(function(container) {
+              container.innerHTML = '<p>업로드중입니다.</p><p>진행중 : <span id="fn"></span></p>';
+            })
+            waitingWin.removable(s_createElement);
+            waitingWin.show();
+            var index = 1;
+            namu.onstarted = function(o) {
+              waitingWin.content(function(container) {
+                container.querySelector("span#fn").textContent = o.name;
+              });
+            }
+            namu.onuploaded = function(o) {
+              if (o.successed)
+                textProc.appendSelection("[[" + o.name + "]]");
+              else
+                alert("오류가 발생했습니다 : " + o.name);
 
-            win.close();
-            win.destroy();
-          }
+              var i = index++;
+              if (i == files.length || i > files.length) {
+                win.destroy();
+                waitingWin.destroy();
+              } else {
+                uploadFile(files[i], files.length == 1 ? filenameInput.value : "파일:" + files[i].name);
+              }
+            }
+            uploadFile(files[0], files.length == 1 ? filenameInput.value : "파일:" + files[0].name);
+          });
         })
-      });
+      })
     });
   }
   this.unload = function() {
-    destroyFunctions.forEach(function(func) {
-      func();
-    });
+    s_createElement.removeAllElements();
   }
 });

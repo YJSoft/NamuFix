@@ -29,15 +29,16 @@ function bsModal() {
   controller.show = function() {
     root.style.display = "block";
     root.className = "modal in";
-    if (body.className.indexOf("modal-open") == -1) body.className += " modal-open";
   };
   controller.close = function() {
     root.style.display = "none";
     root.className = "modal";
-    if (body.className.indexOf("modal-open") != -1) body.className = body.className.replace(/\s?modal\-open\s?/img, '');
   };
   controller.destroy = function() {
     if (root.parentNode != null) root.parentNode.removeChild(root);
+  }
+  controller.removable = function(object) {
+    object.makeRemovable(root);
   }
   return controller;
 }

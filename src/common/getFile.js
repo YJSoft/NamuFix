@@ -1,6 +1,7 @@
-function getFile(callback, isMultiple) {
+function getFile(callback, isMultiple, removable) {
   if (typeof isMultiple === "undefined") isMultiple = false;
   var fileInput = document.createElement("input");
+  if (typeof removable !== "undefined") removable.makeRemovable(fileInput);
   fileInput.setAttribute("type", "file");
   fileInput.setAttribute("accept", "image/*");
   if (isMultiple) fileInput.setAttribute("multiple", "multiple");
